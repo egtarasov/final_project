@@ -55,30 +55,34 @@ func (d *dummyGoFmt) format(text string) string {
 		}
 		//If upper letter, add dot
 		if unicode.IsUpper(r) {
+			// If it first Capital letter of paragraph then just add this letter
 			if len(response) == 1 || response[len(response)-1] == '\t' {
 				response = append(response, r)
 				continue
 			}
+			// base punctuational char
 			punctuationSymbol := '.'
+			// delete possible space symbol
 			if response[len(response)-1] == ' ' {
 				response = response[:len(response)-1]
 			}
+			// delete and recognize punctuational char
 			if len(response) > 0 && unicode.IsPunct(response[len(response)-1]) {
-
 				punctuationSymbol = response[len(response)-1]
 				response = response[:len(response)-1]
 			}
+			// Add punctuational char and space bar
 			response = append(response, punctuationSymbol, ' ')
 		}
 
 		if r == '\n' {
+			// punctuational char + space - two previous chars
 			noPunctuationCharacter := !(previousRune == ' ' && len(response) > 1 && unicode.IsPunct(response[len(response)-2]))
-			// If punctuation character didn't appear, add dot('.').
-			q := unicode.IsPunct(previousRune)
-			_ = q
+			// If punctuation char didn't appear - add dot('.').
 			if !unicode.IsPunct(previousRune) && noPunctuationCharacter {
 				response = append(response, '.')
 			}
+			// New paragraph and tab
 			response = append(response, '\n', '\t')
 		} else {
 			response = append(response, r)
