@@ -45,9 +45,12 @@ func Run() {
 			continue
 		}
 		line = strings.Replace(line, "\r\n", "", -1)
-		err = cons.Action(line)
+		response, err := cons.Action(line)
 		if err != nil {
 			fmt.Println(err)
+			continue
 		}
+
+		fmt.Println(response)
 	}
 }

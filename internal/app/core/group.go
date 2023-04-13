@@ -17,6 +17,7 @@ const (
 
 type groupCommand struct {
 	groupRepo GroupRepository
+	response  string
 }
 
 func NewGroupCommand(groupRepo GroupRepository) *groupCommand {
@@ -25,7 +26,7 @@ func NewGroupCommand(groupRepo GroupRepository) *groupCommand {
 	}
 }
 
-func (g *groupCommand) Process(ctx context.Context, params []string) error {
+func (g *groupCommand) Process(ctx context.Context, params []string) (string, error) {
 	switch params[0] {
 	case "Get":
 		return g.getCommandGroup(ctx, params)
@@ -36,64 +37,64 @@ func (g *groupCommand) Process(ctx context.Context, params []string) error {
 	case "Delete":
 		return g.deleteCommandGroup(ctx, params)
 	default:
-		return InvalidInput
+		return "", InvalidInput
 	}
 }
 
-func (g *groupCommand) deleteCommandGroup(ctx context.Context, params []string) error {
+func (g *groupCommand) deleteCommandGroup(ctx context.Context, params []string) (string, error) {
 	if len(params[1:]) != deleteParamsLenGroups {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	id, err := getId(params)
 	if err != nil {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	ok, err := g.groupRepo.Remove(ctx, id)
 	if err != nil {
-		return ProcessingError
+		return "", ProcessingError
 	}
 	if ok {
-		fmt.Printf("Group  with id[%v] has been deleted\n", id)
+		g.response = fmt.Sprintf("Group  with id[%v] has been deleted\n", id)
 	} else {
-		fmt.Printf("Cant delete group with id[%v]", id)
+		g.response = fmt.Sprintf("Cant delete group with id[%v]", id)
 	}
-	return nil
+	return g.response, nil
 }
 
-func (g *groupCommand) updateCommandGroup(ctx context.Context, params []string) error {
+func (g *groupCommand) updateCommandGroup(ctx context.Context, params []string) (string, error) {
 	if len(params[1:]) != updateParamsLenGroups {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	group, err := g.getGroup(params[1:])
 	if err != nil {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	ok, err := g.groupRepo.UpdateById(ctx, uint64(group.Id), group)
 	if err != nil {
-		return ProcessingError
+		return "", ProcessingError
 	}
 	if ok {
-		fmt.Printf("Group with id[%v] has been updated\n", group.Id)
+		g.response = fmt.Sprintf("Group with id[%v] has been updated\n", group.Id)
 	} else {
-		fmt.Printf("Cant update group with id[%v]", group.Id)
+		g.response = fmt.Sprintf("Cant update group with id[%v]", group.Id)
 	}
-	return nil
+	return g.response, nil
 }
 
-func (g *groupCommand) addCommandGroup(ctx context.Context, params []string) error {
+func (g *groupCommand) addCommandGroup(ctx context.Context, params []string) (string, error) {
 	if len(params[1:]) != addParamsLenGroups {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	group, err := g.getGroup(params[1:])
 	if err != nil {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	id, err := g.groupRepo.Add(ctx, group)
 	if err != nil {
-		return ProcessingError
+		return "", ProcessingError
 	}
 	fmt.Printf("Group has been added with id[%v]\n", id)
-	return nil
+	return g.response, nil
 }
 
 func (g *groupCommand) getGroup(params []string) (*group.Group, error) {
@@ -121,18 +122,18 @@ func (g *groupCommand) getGroup(params []string) (*group.Group, error) {
 	}, nil
 }
 
-func (g *groupCommand) getCommandGroup(ctx context.Context, params []string) error {
+func (g *groupCommand) getCommandGroup(ctx context.Context, params []string) (string, error) {
 	if len(params[1:]) != getParamsLenGroups {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	id, err := getId(params)
 	if err != nil {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	group, err := g.groupRepo.GetById(ctx, id)
 	if err != nil {
-		return ProcessingError
+		return "", ProcessingError
 	}
-	fmt.Printf("group: %v\n", group)
-	return nil
+	g.response = fmt.Sprintf("group: %v\n", group)
+	return g.response, nil
 }

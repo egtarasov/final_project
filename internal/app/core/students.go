@@ -17,7 +17,8 @@ const (
 )
 
 type studentCommand struct {
-	repo StudentRepository
+	repo     StudentRepository
+	response string
 }
 
 func NewStudentCommand(repo StudentRepository) *studentCommand {
@@ -26,7 +27,7 @@ func NewStudentCommand(repo StudentRepository) *studentCommand {
 	}
 }
 
-func (s *studentCommand) Process(ctx context.Context, params []string) error {
+func (s *studentCommand) Process(ctx context.Context, params []string) (string, error) {
 	switch params[0] {
 	case "Get":
 		return s.getCommandStudent(ctx, params)
@@ -37,65 +38,65 @@ func (s *studentCommand) Process(ctx context.Context, params []string) error {
 	case "Delete":
 		return s.deleteCommandStudent(ctx, params)
 	default:
-		return InvalidInput
+		return "", InvalidInput
 	}
 }
 
-func (s *studentCommand) deleteCommandStudent(ctx context.Context, params []string) error {
+func (s *studentCommand) deleteCommandStudent(ctx context.Context, params []string) (string, error) {
 	if len(params[1:]) != deleteParamsLenStudents {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	id, err := getId(params)
 	if err != nil {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	ok, err := s.repo.Remove(ctx, id)
 	if err != nil {
-		return ProcessingError
+		return "", ProcessingError
 	}
 	if ok {
-		fmt.Printf("Student has been added with id[%v]\n", id)
+		s.response = fmt.Sprintf("Student has been added with id[%v]\n", id)
 	} else {
-		fmt.Printf("Cant update student with id[%v]", id)
+		s.response = fmt.Sprintf("Cant update student with id[%v]", id)
 	}
-	return nil
+	return s.response, nil
 }
 
-func (s *studentCommand) updateCommandStudent(ctx context.Context, params []string) error {
+func (s *studentCommand) updateCommandStudent(ctx context.Context, params []string) (string, error) {
 	if len(params[1:]) != updateParamsLenStudents {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	student, err := s.getStudent(params[1:])
 	if err != nil {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	student.UpdatedAt.Valid = true
 	ok, err := s.repo.UpdateById(ctx, uint64(student.Id), student)
 	if err != nil {
-		return ProcessingError
+		return "", ProcessingError
 	}
 	if ok {
-		fmt.Printf("Student has been added with id[%v]\n", student.Id)
+		s.response = fmt.Sprintf("Student has been added with id[%v]\n", student.Id)
 	} else {
-		fmt.Printf("Cant update student with id[%v]", student.Id)
+		s.response = fmt.Sprintf("Cant update student with id[%v]", student.Id)
 	}
-	return nil
+	return s.response, nil
 }
 
-func (s *studentCommand) addCommandStudent(ctx context.Context, params []string) error {
+func (s *studentCommand) addCommandStudent(ctx context.Context, params []string) (string, error) {
 	if len(params[1:]) != addParamsLenStudents {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	student, err := s.getStudent(params[1:])
 	if err != nil {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	id, err := s.repo.Add(ctx, student)
 	if err != nil {
-		return ProcessingError
+		return "", ProcessingError
 	}
-	fmt.Printf("Student has been added with id[%v]\n", id)
-	return nil
+	s.response = fmt.Sprintf("Student has been added with id[%v]\n", id)
+	return s.response, nil
 }
 
 func (s *studentCommand) getStudent(params []string) (*student.Student, error) {
@@ -138,19 +139,19 @@ func (s *studentCommand) getStudent(params []string) (*student.Student, error) {
 	}, nil
 }
 
-func (s *studentCommand) getCommandStudent(ctx context.Context, params []string) error {
+func (s *studentCommand) getCommandStudent(ctx context.Context, params []string) (string, error) {
 	fmt.Println(params)
 	if len(params[1:]) != getParamsLenStudents {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	id, err := getId(params)
 	if err != nil {
-		return InvalidInput
+		return "", InvalidInput
 	}
 	student, err := s.repo.GetById(ctx, id)
 	if err != nil {
-		return ProcessingError
+		return "", ProcessingError
 	}
-	fmt.Printf("student: %v\n", student)
-	return nil
+	s.response = fmt.Sprintf("student: %v\n", student)
+	return s.response, nil
 }

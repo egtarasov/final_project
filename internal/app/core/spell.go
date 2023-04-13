@@ -2,7 +2,7 @@ package core
 
 import (
 	"context"
-	"fmt"
+	"strings"
 	"unicode"
 )
 
@@ -17,25 +17,27 @@ func NewSpellCommand() *spellCommand {
 	return &spellCommand{}
 }
 
-func (s *spellCommand) Process(ctx context.Context, params []string) error {
+func (s *spellCommand) Process(ctx context.Context, params []string) (string, error) {
 	if len(params) != spellParamsLen {
-		return InvalidInput
+		return "", InvalidInput
 	}
 
 	result, err := s.action(params[0])
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	s.show(result)
-	return nil
+	return s.show(result), nil
 }
 
-func (s *spellCommand) show(letters []rune) {
+func (s *spellCommand) show(letters []rune) string {
+	var stringBuilder strings.Builder
 	for _, letter := range letters {
-		fmt.Printf("%c ", letter)
+		stringBuilder.WriteRune(letter)
+		stringBuilder.WriteRune(' ')
 	}
-	fmt.Println()
+	stringBuilder.WriteRune('\n')
+	return stringBuilder.String()
 }
 
 func (s *spellCommand) action(word string) ([]rune, error) {

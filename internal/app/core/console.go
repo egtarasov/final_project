@@ -44,10 +44,10 @@ func NewConsole(ctx context.Context, studentRepo StudentRepository, groupRepo Gr
 }
 
 type consoleCommand interface {
-	Process(ctx context.Context, params []string) error
+	Process(ctx context.Context, params []string) (string, error)
 }
 
-func (c *Console) Action(command string) error {
+func (c *Console) Action(command string) (string, error) {
 	params := strings.Split(command, " ")
 	if command == "help" {
 		fmt.Println(helpMessage)
@@ -58,11 +58,13 @@ func (c *Console) Action(command string) error {
 	case "students":
 		consoleCommand = NewStudentCommand(c.studentRepo)
 	case "groups":
-		consoleCommand = NewStudentCommand(c.studentRepo)
+		consoleCommand = NewGroupCommand(c.groupRepo)
 	case "spell":
 		consoleCommand = NewSpellCommand()
+	case "gofmt":
+		consoleCommand = NewDummyGoFmt()
 	default:
-		return InvalidInput
+		return "", InvalidInput
 	}
 
 	return consoleCommand.Process(c.ctx, params[1:])
