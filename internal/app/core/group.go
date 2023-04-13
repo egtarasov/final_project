@@ -11,8 +11,8 @@ import (
 const (
 	getParamsLenGroups    = 1
 	deleteParamsLenGroups = 1
-	addParamsLenGroups    = 4
-	updateParamsLenGroups = 4
+	addParamsLenGroups    = 3
+	updateParamsLenGroups = 3
 )
 
 type groupCommand struct {
@@ -93,7 +93,7 @@ func (g *groupCommand) addCommandGroup(ctx context.Context, params []string) (st
 	if err != nil {
 		return "", ProcessingError
 	}
-	fmt.Printf("Group has been added with id[%v]\n", id)
+	g.response = fmt.Sprintf("Group has been added with id[%v]\n", id)
 	return g.response, nil
 }
 
@@ -108,17 +108,11 @@ func (g *groupCommand) getGroup(params []string) (*group.Group, error) {
 		valid = false
 	}
 
-	amountOfStudents, err := strconv.ParseInt(params[2], 10, 64)
-	if err != nil {
-		return nil, InvalidInput
-	}
-
-	year, err := strconv.ParseUint(params[3], 10, 32)
+	year, err := strconv.ParseUint(params[2], 10, 32)
 	return &group.Group{
-		Id:               id,
-		Name:             sql.NullString{String: params[1], Valid: valid},
-		AmountOfStudents: amountOfStudents,
-		Year:             int32(year),
+		Id:   id,
+		Name: sql.NullString{String: params[1], Valid: valid},
+		Year: int32(year),
 	}, nil
 }
 

@@ -19,7 +19,7 @@ func NewGroupsRepository(client database.Dbops) *GroupsRepository {
 
 func (s *GroupsRepository) GetById(ctx context.Context, id uint64) (*Group, error) {
 	var group Group
-	query := `SELECT id, amount_of_students, group_name, st_year from groups WHERE id = $1`
+	query := `SELECT id, group_name, st_year from groups WHERE id = $1`
 	err := s.client.Get(ctx, &group, query, id)
 	if err == sql.ErrNoRows {
 		return nil, ErrObjectNotFound
@@ -29,12 +29,11 @@ func (s *GroupsRepository) GetById(ctx context.Context, id uint64) (*Group, erro
 }
 
 func (s *GroupsRepository) Add(ctx context.Context, group *Group) (uint64, error) {
-	query := `INSERT INTO groups (amount_of_students, group_name, st_year) VALUES($1, $2, $3) RETURNING id`
+	query := `INSERT INTO groups (group_name, st_year) VALUES($1, $2) RETURNING id`
 
 	var id uint64
 
 	err := s.client.ExecQueryRow(ctx, query,
-		group.AmountOfStudents,
 		group.Name.String,
 		group.Year).Scan(&id)
 
@@ -43,11 +42,10 @@ func (s *GroupsRepository) Add(ctx context.Context, group *Group) (uint64, error
 
 func (s *GroupsRepository) UpdateById(ctx context.Context, id uint64, group *Group) (bool, error) {
 	query := `UPDATE groups
-			SET amount_of_students = $1, group_name = $2, st_year = $3
+			SET group_name = $2, st_year = $3
 			WHERE id = $4`
 
 	result, err := s.client.Exec(ctx, query,
-		group.AmountOfStudents,
 		group.Name.String,
 		group.Year,
 		id)

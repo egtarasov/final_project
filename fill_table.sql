@@ -11,9 +11,9 @@ INSERT INTO students
 VALUES("Smart", "Humble", "Hard-worker", 7.5, 0.95, 4)
 
 INSERT INTO groups
-    (amount_of_students, group_name, st_year)
+    (group_name, st_year)
 VALUES
-    (30, 'group1', 2),
-    (40, 'group2', 1),
-    (19, 'group3', 4),
-    (24, 'group4', 3)
+    ('group1', 2),
+    ('group2', 1),
+    ('group3', 4),
+    ('group4', 3)
