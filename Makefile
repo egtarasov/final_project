@@ -23,7 +23,7 @@ migration-down:
 .PHONY: compose-up
 compose-up:
 	docker-compose build
-	docker-compose up -d postgres
+	docker-compose up -d
 
 
 .PHONY: compose-down

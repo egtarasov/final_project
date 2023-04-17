@@ -17,8 +17,8 @@ const (
 			Delete [id] delete student from db
 	groups
 			Get [id] retrieve group from db with Id = id
-			Add [id | name | amount_of_students | year] insert group in db
-			Update [id | name | amount_of_students | year] update group in db
+			Add [id | name | year] insert group in db
+			Update [id | name | year] update group in db
 			Delete [id] delete group from db
 	spell word 
 		spell [word], which contains only of latin letters, by letters
@@ -51,6 +51,7 @@ func (c *Console) Action(command string) (string, error) {
 	params := strings.Split(command, " ")
 	if command == "help" {
 		fmt.Println(helpMessage)
+		return "", nil
 	}
 	var consoleCommand consoleCommand
 
