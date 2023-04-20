@@ -22,7 +22,8 @@ const (
 			Delete [id] delete group from db
 	spell word 
 		spell [word], which contains only of latin letters, by letters
-	`
+	gofmt ../filename.txt
+		format file`
 )
 
 var (

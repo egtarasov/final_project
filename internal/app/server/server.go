@@ -1,3 +1,4 @@
+//go:generate mockgen -source ./server.go -destination=./mocks/server.go -package=mock_server
 package server
 
 import (
@@ -10,6 +11,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"strconv"
 )
 
@@ -17,13 +19,10 @@ const (
 	Port = ":80"
 )
 
-type Server interface {
-	Get(r *http.Request) ([]byte, int)
-	Post(r *http.Request) ([]byte, int)
-	Put(r *http.Request) ([]byte, int)
-	Delete(r *http.Request) ([]byte, int)
-	Handle(w http.ResponseWriter, r *http.Request)
-}
+var (
+	errNoId    = errors.New("no id")
+	errParseId = errors.New("cant parse id")
+)
 
 type GroupsRepository interface {
 	Add(ctx context.Context, group *group.Group) (uint64, error)                 //create
@@ -45,24 +44,24 @@ type server struct {
 	ctx         context.Context
 }
 
-func New(ctx context.Context, studentRepo *student.StudentsRepository, groupRepo *group.GroupsRepository) Server {
+func NewServer(ctx context.Context, studentRepo StudentsRepository, groupRepo GroupsRepository) *server {
 	return &server{
 		ctx:         ctx,
 		studentRepo: studentRepo,
 		groupRepo:   groupRepo}
 }
 
-func (s *server) GetIdQuery(r *http.Request) (uint64, error) {
-	idStr := r.URL.Query().Get("id")
+func (s *server) GetIdQuery(r *url.URL) (uint64, error) {
+	idStr := r.Query().Get("id")
 
 	if idStr == "" {
-		return 0, errors.New("no id")
+		return 0, errNoId
 	}
 
 	id, err := strconv.ParseUint(idStr, 10, 32)
 
 	if err != nil {
-		return 0, err
+		return 0, errParseId
 	}
 
 	return id, nil
@@ -105,7 +104,7 @@ func (s *server) GetGroupFromBody(r *http.Request) (group.Group, error) {
 }
 
 func (s *server) Get(r *http.Request) ([]byte, int) {
-	id, err := s.GetIdQuery(r)
+	id, err := s.GetIdQuery(r.URL)
 	if err != nil {
 		return nil, http.StatusBadRequest
 	}
@@ -165,7 +164,7 @@ func (s *server) Post(r *http.Request) ([]byte, int) {
 }
 
 func (s *server) Put(r *http.Request) ([]byte, int) {
-	id, err := s.GetIdQuery(r)
+	id, err := s.GetIdQuery(r.URL)
 	if err != nil {
 		return nil, http.StatusBadRequest
 	}
@@ -203,7 +202,7 @@ func (s *server) Put(r *http.Request) ([]byte, int) {
 }
 
 func (s *server) Delete(r *http.Request) ([]byte, int) {
-	id, err := s.GetIdQuery(r)
+	id, err := s.GetIdQuery(r.URL)
 	if err != nil {
 		return nil, http.StatusBadRequest
 	}
