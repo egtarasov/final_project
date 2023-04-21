@@ -1,8 +1,7 @@
-package fixtures
+package student
 
 import (
 	"database/sql"
-	"homework-5/internal/app/student"
 	"time"
 )
 
@@ -21,7 +20,7 @@ var (
 )
 
 type StudentBuilder struct {
-	student student.Student
+	student Student
 }
 
 func (s *StudentBuilder) Id(id int64) *StudentBuilder {
@@ -69,11 +68,11 @@ func (s *StudentBuilder) UpdatedAt(time time.Time) *StudentBuilder {
 	return s
 }
 
-func (s *StudentBuilder) P() *student.Student {
+func (s *StudentBuilder) P() *Student {
 	return &s.student
 }
 
-func (s *StudentBuilder) V() student.Student {
+func (s *StudentBuilder) V() Student {
 	return s.student
 }
 

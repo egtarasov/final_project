@@ -42,8 +42,8 @@ func (s *GroupsRepository) Add(ctx context.Context, group *Group) (uint64, error
 
 func (s *GroupsRepository) UpdateById(ctx context.Context, id uint64, group *Group) (bool, error) {
 	query := `UPDATE groups
-			SET group_name = $2, st_year = $3
-			WHERE id = $4`
+			SET group_name = $1, st_year = $2
+			WHERE id = $3`
 
 	result, err := s.client.Exec(ctx, query,
 		group.Name.String,

@@ -1,12 +1,11 @@
-package fixtures
+package group
 
 import (
 	"database/sql"
-	"homework-5/internal/app/group"
 )
 
 type GroupBuilder struct {
-	group group.Group
+	group Group
 }
 
 func (g *GroupBuilder) Name(name string) *GroupBuilder {
@@ -24,11 +23,11 @@ func (g *GroupBuilder) Year(year int32) *GroupBuilder {
 	return g
 }
 
-func (g *GroupBuilder) V() group.Group {
+func (g *GroupBuilder) V() Group {
 	return g.group
 }
 
-func (g *GroupBuilder) P() *group.Group {
+func (g *GroupBuilder) P() *Group {
 	return &g.group
 }
 

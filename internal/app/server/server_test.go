@@ -8,7 +8,6 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"homework-5/internal/app/fixtures"
 	gr "homework-5/internal/app/group"
 	st "homework-5/internal/app/student"
 	"net/http"
@@ -65,7 +64,7 @@ func TestServer_GetGroupFromBody(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		var (
 			ctx     = context.Background()
-			student = fixtures.DefaultGroup().V()
+			student = gr.DefaultGroup().V()
 		)
 		buffer, err := json.Marshal(student)
 		s := NewServer(ctx, nil, nil)
@@ -83,7 +82,7 @@ func TestServer_GetStudentFromBody(t *testing.T) {
 		t.Parallel()
 		var (
 			ctx     = context.Background()
-			student = fixtures.DefaultStudent().V()
+			student = st.DefaultStudent().V()
 		)
 		buffer, err := json.Marshal(student)
 		s := NewServer(ctx, nil, nil)
@@ -101,7 +100,7 @@ func TestServer_Get(t *testing.T) {
 		t.Parallel()
 		var (
 			m       = setUp(t)
-			student = fixtures.DefaultStudent().P()
+			student = st.DefaultStudent().P()
 		)
 		defer m.teraDown()
 		request, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("localhost?id=%v&table=student", student.Id), bytes.NewReader([]byte{}))
@@ -120,7 +119,7 @@ func TestServer_Get(t *testing.T) {
 		t.Parallel()
 		var (
 			m     = setUp(t)
-			group = fixtures.DefaultGroup().P()
+			group = gr.DefaultGroup().P()
 		)
 		defer m.teraDown()
 		m.groupRepo.EXPECT().GetById(gomock.Any(), uint64(group.Id)).Return(group, nil)
@@ -160,8 +159,8 @@ func TestServer_Post(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
 		var (
-			student = fixtures.DefaultStudent().V()
-			group   = fixtures.DefaultGroup().V()
+			student = st.DefaultStudent().V()
+			group   = gr.DefaultGroup().V()
 		)
 		m := setUp(t)
 		defer m.teraDown()
@@ -196,8 +195,8 @@ func TestServer_Put(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
 		var (
-			student = fixtures.DefaultStudent().V()
-			group   = fixtures.DefaultGroup().V()
+			student = st.DefaultStudent().V()
+			group   = gr.DefaultGroup().V()
 		)
 		m := setUp(t)
 		defer m.teraDown()
