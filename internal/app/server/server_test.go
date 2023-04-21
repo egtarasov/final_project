@@ -171,6 +171,7 @@ func TestServer_Post(t *testing.T) {
 		requestGroup, _ := http.NewRequest(http.MethodPost, "localhost?table=group", bytes.NewReader(groupBuff))
 
 		m.studentRepo.EXPECT().Add(gomock.Any(), &student).Return(uint64(student.Id), nil)
+		m.groupRepo.EXPECT().Add(gomock.Any(), &group).Return(uint64(group.Id), nil)
 
 		tt := []struct {
 			request      *http.Request
