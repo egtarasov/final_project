@@ -7,8 +7,8 @@ CREATE TABLE students(
     middle_name VARCHAR(30) DEFAULT NULL,
     gpa FLOAT DEFAULT 0 CHECK(gpa >= 0 and gpa <= 10),
     attendance_rate FLOAT DEFAULT 0 CHECK(attendance_rate >= 0 and attendance_rate <= 1),
-    created_at TIME DEFAULT NOW(),
-    update_at TIME DEFAULT NULL
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NULL
 );
 -- +goose StatementEnd
 

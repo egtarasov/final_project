@@ -13,6 +13,6 @@ type Student struct {
 	Gpa            float64        `db:"gpa"`
 	AttendanceRate float64        `db:"attendance_rate"`
 	CreatedAt      time.Time      `db:"created_at"`
-	UpdatedAt      sql.NullTime   `db:"update_at"`
+	UpdatedAt      sql.NullTime   `db:"updated_at"`
 	GroupId        sql.NullInt64  `db:"group_id"`
 }

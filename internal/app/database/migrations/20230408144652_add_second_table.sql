@@ -13,8 +13,7 @@ ADD group_id BIGINT references groups(id);
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE groups;
-
 ALTER TABLE students
 DROP COLUMN group_id;
+DROP TABLE groups;
 -- +goose StatementEnd
