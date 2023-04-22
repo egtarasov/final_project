@@ -10,7 +10,7 @@ import (
 type UserRepoFixture struct {
 	ctx         context.Context
 	ctrl        *gomock.Controller
-	s           *server
+	s           *Server
 	studentRepo *mock.MockStudentsRepository
 	groupRepo   *mock.MockGroupsRepository
 }

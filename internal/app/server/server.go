@@ -1,4 +1,4 @@
-//go:generate mockgen -source ./server.go -destination=./mocks/server.go -package=mock_server
+//go:generate mockgen -source ./Server.go -destination=./mocks/Server.go -package=mock_server
 package server
 
 import (
@@ -38,20 +38,20 @@ type StudentsRepository interface {
 	Remove(ctx context.Context, id uint64) (bool, error)                               //delete
 }
 
-type server struct {
+type Server struct {
 	studentRepo StudentsRepository
 	groupRepo   GroupsRepository
 	ctx         context.Context
 }
 
-func NewServer(ctx context.Context, studentRepo StudentsRepository, groupRepo GroupsRepository) *server {
-	return &server{
+func NewServer(ctx context.Context, studentRepo StudentsRepository, groupRepo GroupsRepository) *Server {
+	return &Server{
 		ctx:         ctx,
 		studentRepo: studentRepo,
 		groupRepo:   groupRepo}
 }
 
-func (s *server) GetIdQuery(r *url.URL) (uint64, error) {
+func (s *Server) GetIdQuery(r *url.URL) (uint64, error) {
 	idStr := r.Query().Get("id")
 
 	if idStr == "" {
@@ -67,43 +67,43 @@ func (s *server) GetIdQuery(r *url.URL) (uint64, error) {
 	return id, nil
 }
 
-func (s *server) GetStudentFromBody(r *http.Request) (student.Student, error) {
+func (s *Server) GetStudentFromBody(r *http.Request) (student.Student, error) {
 	data, err := io.ReadAll(r.Body)
 
 	if err != nil {
-		log.Printf("Error while reading body, method:[server/Post]")
+		log.Printf("Error while reading body, method:[Server/Post]")
 		return student.Student{}, err
 	}
 
 	var unmarshalled student.Student
 
 	if err = json.Unmarshal(data, &unmarshalled); err != nil {
-		fmt.Printf("Error while unmarshalling body, method:[server/Post]")
+		fmt.Printf("Error while unmarshalling body, method:[Server/Post]")
 		return student.Student{}, err
 	}
 
 	return unmarshalled, nil
 }
 
-func (s *server) GetGroupFromBody(r *http.Request) (group.Group, error) {
+func (s *Server) GetGroupFromBody(r *http.Request) (group.Group, error) {
 	data, err := io.ReadAll(r.Body)
 
 	if err != nil {
-		log.Printf("Error while reading body, method:[server/Post]")
+		log.Printf("Error while reading body, method:[Server/Post]")
 		return group.Group{}, err
 	}
 
 	var unmarshalled group.Group
 
 	if err = json.Unmarshal(data, &unmarshalled); err != nil {
-		fmt.Printf("Error while unmarshalling body, method:[server/Post]")
+		fmt.Printf("Error while unmarshalling body, method:[Server/Post]")
 		return group.Group{}, err
 	}
 
 	return unmarshalled, nil
 }
 
-func (s *server) Get(r *http.Request) ([]byte, int) {
+func (s *Server) Get(r *http.Request) ([]byte, int) {
 	id, err := s.GetIdQuery(r.URL)
 	if err != nil {
 		return nil, http.StatusBadRequest
@@ -133,7 +133,7 @@ func (s *server) Get(r *http.Request) ([]byte, int) {
 	return marshalled, http.StatusOK
 }
 
-func (s *server) Post(r *http.Request) ([]byte, int) {
+func (s *Server) Post(r *http.Request) ([]byte, int) {
 	table := r.URL.Query().Get("table")
 
 	var id uint64
@@ -163,7 +163,7 @@ func (s *server) Post(r *http.Request) ([]byte, int) {
 	return []byte(fmt.Sprintf("%v with id[%v] has been added to database", table, id)), http.StatusOK
 }
 
-func (s *server) Put(r *http.Request) ([]byte, int) {
+func (s *Server) Put(r *http.Request) ([]byte, int) {
 	id, err := s.GetIdQuery(r.URL)
 	if err != nil {
 		return nil, http.StatusBadRequest
@@ -201,7 +201,7 @@ func (s *server) Put(r *http.Request) ([]byte, int) {
 	return []byte("Object has been successfully updated"), http.StatusOK
 }
 
-func (s *server) Delete(r *http.Request) ([]byte, int) {
+func (s *Server) Delete(r *http.Request) ([]byte, int) {
 	id, err := s.GetIdQuery(r.URL)
 	if err != nil {
 		return nil, http.StatusBadRequest
@@ -229,7 +229,7 @@ func (s *server) Delete(r *http.Request) ([]byte, int) {
 	return []byte("Object has been successfully deleted"), http.StatusOK
 }
 
-func (s *server) Handle(w http.ResponseWriter, r *http.Request) {
+func (s *Server) Handle(w http.ResponseWriter, r *http.Request) {
 	var (
 		buf  []byte
 		code int

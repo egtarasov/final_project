@@ -41,3 +41,7 @@ test-group:
 .PHONY: test-student
 test-student:
 	go test -v ./internal/app/student
+
+.PHONY: test-server
+test-server:
+	go test -v ./internal/app/server/test_integration
