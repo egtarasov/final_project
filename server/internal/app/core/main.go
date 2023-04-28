@@ -20,10 +20,10 @@ type GroupRepository interface {
 }
 
 type StudentRepository interface {
-	Add(ctx context.Context, student *student.Student) (uint64, error)                 //create
-	GetById(ctx context.Context, id uint64) (*student.Student, error)                  //read
-	UpdateById(ctx context.Context, id uint64, student *student.Student) (bool, error) // update
-	Remove(ctx context.Context, id uint64) (bool, error)                               //delete
+	Add(ctx context.Context, student *student.Student) (int64, error)                 //create
+	GetById(ctx context.Context, id int64) (*student.Student, error)                  //read
+	UpdateById(ctx context.Context, id int64, student *student.Student) (bool, error) // update
+	Remove(ctx context.Context, id int64) (bool, error)                               //delete
 }
 
 func Run() {

@@ -17,7 +17,7 @@ func NewGroupsRepository(client database.Dbops) *GroupsRepository {
 	return &GroupsRepository{client: client}
 }
 
-func (s *GroupsRepository) GetById(ctx context.Context, id uint64) (*Group, error) {
+func (s *GroupsRepository) GetById(ctx context.Context, id int64) (*Group, error) {
 	var group Group
 	query := `SELECT id, group_name, st_year from groups WHERE id = $1`
 	err := s.client.Get(ctx, &group, query, id)
@@ -28,10 +28,10 @@ func (s *GroupsRepository) GetById(ctx context.Context, id uint64) (*Group, erro
 	return &group, err
 }
 
-func (s *GroupsRepository) Add(ctx context.Context, group *Group) (uint64, error) {
+func (s *GroupsRepository) Add(ctx context.Context, group *Group) (int64, error) {
 	query := `INSERT INTO groups (group_name, st_year) VALUES($1, $2) RETURNING id`
 
-	var id uint64
+	var id int64
 
 	err := s.client.ExecQueryRow(ctx, query,
 		group.Name.String,
@@ -40,7 +40,7 @@ func (s *GroupsRepository) Add(ctx context.Context, group *Group) (uint64, error
 	return id, err
 }
 
-func (s *GroupsRepository) UpdateById(ctx context.Context, id uint64, group *Group) (bool, error) {
+func (s *GroupsRepository) UpdateById(ctx context.Context, id int64, group *Group) (bool, error) {
 	query := `UPDATE groups
 			SET group_name = $1, st_year = $2
 			WHERE id = $3`
@@ -53,7 +53,7 @@ func (s *GroupsRepository) UpdateById(ctx context.Context, id uint64, group *Gro
 	return result.RowsAffected() > 0, err
 }
 
-func (s *GroupsRepository) Remove(ctx context.Context, id uint64) (bool, error) {
+func (s *GroupsRepository) Remove(ctx context.Context, id int64) (bool, error) {
 	result, err := s.client.Exec(ctx, "DELETE FROM groups WHERE id = $1", id)
 
 	return result.RowsAffected() > 0, err

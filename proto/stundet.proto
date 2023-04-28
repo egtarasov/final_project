@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+option go_package = "repository";
+
+import "google/protobuf/timestamp.proto";
+
+service StudentService {
+  // Create new student
+  rpc CreateStudent(CreateStudentRequest) returns (CreateStudentResponse){}
+  // Get a student by id
+  rpc GetStudentById(GetStudentRequest) returns (GetStudentResponse){}
+  // Delete student by id
+  rpc DeleteStudentById(DeleteStudentRequest) returns (DeleteStudentResponse){}
+  // Update student by id
+  rpc UpdateRequest(UpdateStudentRequest) returns (UpdateStudentResponse){}
+}
+
+message Student{
+  int64 id = 1;
+  string first_name = 2;
+  string second_name = 3;
+  string middle_name = 4;
+  double gpa = 5;
+  double attendance_rate = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+  int64 group_id = 9;
+}
+
+
+
+message GetStudentRequest{
+  int64 id = 1;
+}
+
+message GetStudentResponse{
+  Student student = 1;
+}
+
+message CreateStudentRequest{
+  Student student = 1;
+}
+
+message CreateStudentResponse{
+  int64 id = 1;
+}
+
+message DeleteStudentRequest{
+  int64 id = 1;
+}
+
+message DeleteStudentResponse{
+  bool ok = 1;
+}
+
+message UpdateStudentRequest{
+  Student student = 1;
+  int64 id = 2;
+}
+
+message UpdateStudentResponse{
+  bool ok = 1;
+}
