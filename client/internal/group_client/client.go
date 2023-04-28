@@ -1,13 +1,13 @@
-package student_client
+package group_client
 
 import (
 	"context"
 	"google.golang.org/grpc"
-	"homework-5/client/pb/student_repo"
+	"homework-5/client/pb/group_repo"
 )
 
 type StudentClient struct {
-	grpc student_repo.StudentServiceClient
+	grpc group_repo.GroupServiceClient
 	conn *grpc.ClientConn
 }
 
@@ -16,7 +16,7 @@ func NewClient(ctx context.Context, target string) (*StudentClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	grpc := student_repo.NewStudentServiceClient(conn)
+	grpc := group_repo.NewGroupServiceClient(conn)
 
 	return &StudentClient{
 		grpc: grpc,

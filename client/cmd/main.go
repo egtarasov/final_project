@@ -8,7 +8,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
-	group_client "homework-5/client/internal/group_service"
+	group_client "homework-5/client/internal/group_client"
 	"homework-5/client/internal/student_client"
 	"log"
 	"time"
@@ -67,20 +67,19 @@ func main() {
 	//Register Tracer Provider
 	otel.SetTracerProvider(tp)
 
-	studentCLient, err := student_client.NewClient(ctx, serverStudentUrl)
+	studentClient, err := student_client.NewClient(ctx, serverStudentUrl)
 	if err != nil {
 		log.Fatal("cant connect to student service")
 	}
-	defer studentCLient.Close()
+	defer studentClient.Close()
 
 	groupClient, err := group_client.NewClient(ctx, serverStudentUrl)
 	if err != nil {
 		log.Fatal("cant connect to student service")
 	}
-
 	defer groupClient.Close()
 
-	//student, err := studentCLient.GetById(ctx, 2)
+	//student, err := studentClient.GetById(ctx, 2)
 	//if err != nil {
 	//	log.Fatal(err)
 	//}
@@ -88,13 +87,13 @@ func main() {
 	//
 	//student.FirstName = "Bob"
 	//student.SecondName = "Bobuk"
-	//id, err := studentCLient.Create(ctx, student)
+	//id, err := studentClient.Create(ctx, student)
 	//if err != nil {
 	//	log.Fatal(err)
 	//}
 	//fmt.Println(id)
 	//
-	//ok, err := studentCLient.Delete(ctx, 1)
+	//ok, err := studentClient.Delete(ctx, 1)
 	//if err != nil {
 	//	log.Fatal(err)
 	//}
