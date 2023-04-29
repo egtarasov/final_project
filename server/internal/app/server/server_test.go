@@ -8,8 +8,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	gr "homework-5/internal/app/group"
-	st "homework-5/internal/app/student"
+	group2 "homework-5/server/internal/app/group"
+	student2 "homework-5/server/internal/app/student"
 	"net/http"
 	"net/url"
 	"testing"
@@ -64,7 +64,7 @@ func TestServer_GetGroupFromBody(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		var (
 			ctx     = context.Background()
-			student = gr.DefaultGroup().V()
+			student = group2.DefaultGroup().V()
 		)
 		buffer, err := json.Marshal(student)
 		s := NewServer(ctx, nil, nil)
@@ -82,7 +82,7 @@ func TestServer_GetStudentFromBody(t *testing.T) {
 		t.Parallel()
 		var (
 			ctx     = context.Background()
-			student = st.DefaultStudent().V()
+			student = student2.DefaultStudent().V()
 		)
 		buffer, err := json.Marshal(student)
 		s := NewServer(ctx, nil, nil)
@@ -100,7 +100,7 @@ func TestServer_Get(t *testing.T) {
 		t.Parallel()
 		var (
 			m       = setUp(t)
-			student = st.DefaultStudent().P()
+			student = student2.DefaultStudent().P()
 		)
 		defer m.teraDown()
 		request, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("localhost?id=%v&table=student", student.Id), bytes.NewReader([]byte{}))
@@ -110,7 +110,7 @@ func TestServer_Get(t *testing.T) {
 
 		require.Equal(t, http.StatusOK, statusCode)
 
-		var actual st.Student
+		var actual student2.Student
 		_ = json.Unmarshal(marshalled, &actual)
 
 		assert.ObjectsAreEqualValues(student, actual)
@@ -119,7 +119,7 @@ func TestServer_Get(t *testing.T) {
 		t.Parallel()
 		var (
 			m     = setUp(t)
-			group = gr.DefaultGroup().P()
+			group = group2.DefaultGroup().P()
 		)
 		defer m.teraDown()
 		m.groupRepo.EXPECT().GetById(gomock.Any(), uint64(group.Id)).Return(group, nil)
@@ -129,7 +129,7 @@ func TestServer_Get(t *testing.T) {
 
 		require.Equal(t, http.StatusOK, statusCode)
 
-		var actual gr.Group
+		var actual group2.Group
 		_ = json.Unmarshal(marshalled, &actual)
 
 		assert.ObjectsAreEqualValues(group, actual)
@@ -159,8 +159,8 @@ func TestServer_Post(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
 		var (
-			student = st.DefaultStudent().V()
-			group   = gr.DefaultGroup().V()
+			student = student2.DefaultStudent().V()
+			group   = group2.DefaultGroup().V()
 		)
 		m := setUp(t)
 		defer m.teraDown()
@@ -196,8 +196,8 @@ func TestServer_Put(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
 		var (
-			student = st.DefaultStudent().V()
-			group   = gr.DefaultGroup().V()
+			student = student2.DefaultStudent().V()
+			group   = group2.DefaultGroup().V()
 		)
 		m := setUp(t)
 		defer m.teraDown()

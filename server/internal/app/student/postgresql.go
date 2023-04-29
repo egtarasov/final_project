@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"homework-5/internal/app/database"
+	"homework-5/server/internal/app/database"
 )
 
 var ErrObjectNotFound = errors.New("Object not found")

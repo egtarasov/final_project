@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"homework-5/internal/app/database"
-	"homework-5/internal/app/group"
-	"homework-5/internal/app/server"
-	"homework-5/internal/app/student"
+	database2 "homework-5/server/internal/app/database"
+	group2 "homework-5/server/internal/app/group"
+	"homework-5/server/internal/app/server"
+	student2 "homework-5/server/internal/app/student"
 	"strings"
 	"sync"
 )
@@ -16,14 +16,14 @@ type TestHandler struct {
 	sync.Mutex
 	ctx    context.Context
 	server *server.Server
-	db     *database.Database
+	db     *database2.Database
 }
 
 func NewTestHandler() *TestHandler {
 	ctx := context.Background()
-	db, _ := database.NewDb(ctx)
-	groupRepo := group.NewGroupsRepository(db)
-	studentRepo := student.NewStudentsRepository(db)
+	db, _ := database2.NewDb(ctx)
+	groupRepo := group2.NewGroupsRepository(db)
+	studentRepo := student2.NewStudentsRepository(db)
 	server := server.NewServer(ctx, studentRepo, groupRepo)
 	return &TestHandler{
 		ctx:    ctx,
@@ -32,7 +32,7 @@ func NewTestHandler() *TestHandler {
 	}
 }
 
-func (t *TestHandler) setUp(student *student.Student, group *group.Group) {
+func (t *TestHandler) setUp(student *student2.Student, group *group2.Group) {
 	t.Lock()
 	t.truncate()
 	t.add(student, group)
@@ -58,7 +58,7 @@ func (t *TestHandler) truncate() {
 	}
 }
 
-func (t *TestHandler) add(student *student.Student, group *group.Group) {
+func (t *TestHandler) add(student *student2.Student, group *group2.Group) {
 	t.db.ExecQueryRow(t.ctx, `INSERT INTO groups (group_name, st_year) VALUES($1, $2) RETURNING id`,
 		group.Name, group.Year).Scan(&group.Id)
 

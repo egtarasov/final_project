@@ -6,8 +6,8 @@ package mock_server
 
 import (
 	context "context"
-	group "homework-5/internal/app/group"
-	student "homework-5/internal/app/student"
+	"homework-5/server/internal/app/group"
+	"homework-5/server/internal/app/student"
 	http "net/http"
 	reflect "reflect"
 

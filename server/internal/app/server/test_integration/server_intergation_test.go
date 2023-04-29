@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"homework-5/internal/app/group"
-	"homework-5/internal/app/student"
+	group2 "homework-5/server/internal/app/group"
+	student2 "homework-5/server/internal/app/student"
 	"net/http"
 	"net/url"
 	"testing"
@@ -18,8 +18,8 @@ func Test_Get(t *testing.T) {
 	t.Run("success_student", func(t *testing.T) {
 		t.Parallel()
 		var (
-			st = student.DefaultStudent().P()
-			gr = group.DefaultGroup().P()
+			st = student2.DefaultStudent().P()
+			gr = group2.DefaultGroup().P()
 		)
 		s := NewTestHandler()
 		s.setUp(st, gr)
@@ -30,15 +30,15 @@ func Test_Get(t *testing.T) {
 		marshalled, statusCode := s.server.Get(request)
 
 		require.Equal(t, http.StatusOK, statusCode)
-		var actual student.Student
+		var actual student2.Student
 		_ = json.Unmarshal(marshalled, &actual)
 		assert.ObjectsAreEqualValues(st, actual)
 	})
 	t.Run("success_group", func(t *testing.T) {
 		t.Parallel()
 		var (
-			st = student.DefaultStudent().P()
-			gr = group.DefaultGroup().P()
+			st = student2.DefaultStudent().P()
+			gr = group2.DefaultGroup().P()
 		)
 		s := NewTestHandler()
 		s.setUp(st, gr)
@@ -49,7 +49,7 @@ func Test_Get(t *testing.T) {
 
 		require.Equal(t, http.StatusOK, statusCode)
 
-		var actual group.Group
+		var actual group2.Group
 		_ = json.Unmarshal(marshalled, &actual)
 
 		assert.ObjectsAreEqualValues(gr, actual)
@@ -60,8 +60,8 @@ func TestServer_Post(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
 		var (
-			st = student.DefaultStudent().P()
-			gr = group.DefaultGroup().P()
+			st = student2.DefaultStudent().P()
+			gr = group2.DefaultGroup().P()
 		)
 		s := NewTestHandler()
 		s.setUp(st, gr)
@@ -92,8 +92,8 @@ func TestServer_Put(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
 		var (
-			st = student.DefaultStudent().P()
-			gr = group.DefaultGroup().P()
+			st = student2.DefaultStudent().P()
+			gr = group2.DefaultGroup().P()
 		)
 		s := NewTestHandler()
 		s.setUp(st, gr)
@@ -128,8 +128,8 @@ func TestServer_Delete(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
 		var (
-			st = student.DefaultStudent().P()
-			gr = group.DefaultGroup().P()
+			st = student2.DefaultStudent().P()
+			gr = group2.DefaultGroup().P()
 		)
 		s := NewTestHandler()
 		s.setUp(st, gr)

@@ -1,8 +1,7 @@
 syntax = "proto3";
 
-option go_package = "repository";
-
-import "google/protobuf/timestamp.proto";
+package student_repo;
+option go_package = "pb2/student_repo";
 
 service StudentService {
   // Create new student
@@ -12,7 +11,7 @@ service StudentService {
   // Delete student by id
   rpc DeleteStudentById(DeleteStudentRequest) returns (DeleteStudentResponse){}
   // Update student by id
-  rpc UpdateRequest(UpdateStudentRequest) returns (UpdateStudentResponse){}
+  rpc UpdateStudent(UpdateStudentRequest) returns (UpdateStudentResponse){}
 }
 
 message Student{
@@ -22,8 +21,6 @@ message Student{
   string middle_name = 4;
   double gpa = 5;
   double attendance_rate = 6;
-  google.protobuf.Timestamp created_at = 7;
-  google.protobuf.Timestamp updated_at = 8;
   int64 group_id = 9;
 }
 

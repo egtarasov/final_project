@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"homework-5/internal/app/group"
+	"homework-5/server/internal/app/group"
 	"strconv"
 )
 
