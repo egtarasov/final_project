@@ -51,7 +51,7 @@ func (i *Implementation) GetGroupById(ctx context.Context, request *group_repo2.
 
 	group, err := i.repo.GetById(ctx, request.Id)
 	if err != nil {
-		return nil, fmt.Errorf("cant create group")
+		return nil, fmt.Errorf("cant get group")
 	}
 
 	return &group_repo2.GetGroupResponse{Group: ParseGroupRequest(group)}, nil
@@ -67,7 +67,7 @@ func (i *Implementation) DeleteGroupById(ctx context.Context, request *group_rep
 
 	ok, err := i.repo.Remove(ctx, request.Id)
 	if err != nil {
-		return nil, fmt.Errorf("cant create group")
+		return nil, fmt.Errorf("cant delete group")
 	}
 
 	return &group_repo2.DeleteGroupResponse{Ok: ok}, nil
@@ -88,7 +88,7 @@ func (i *Implementation) UpdateGroup(ctx context.Context, request *group_repo2.U
 
 	ok, err := i.repo.UpdateById(ctx, request.Id, ParseGroup(request.Group))
 	if err != nil {
-		return nil, fmt.Errorf("cant create group")
+		return nil, fmt.Errorf("cant update group")
 	}
 
 	return &group_repo2.UpdateGroupResponse{Ok: ok}, nil

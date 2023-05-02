@@ -84,7 +84,7 @@ func (i *Implementation) UpdateStudent(ctx context.Context, request *student_rep
 
 	ok, err := i.repo.UpdateById(ctx, request.Id, ParseStudent(request.Student))
 	if err != nil {
-		return nil, fmt.Errorf("cant remove student")
+		return nil, fmt.Errorf("cant update student")
 	}
 	return &student_repo2.UpdateStudentResponse{Ok: ok}, nil
 }
