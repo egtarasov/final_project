@@ -18,7 +18,7 @@ import (
 
 const (
 	serverStudentUrl = ":8000"
-	serverGroupUrl   = ":80001"
+	serverGroupUrl   = ":8001"
 )
 
 const (
