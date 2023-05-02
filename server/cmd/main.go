@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/joho/godotenv"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
@@ -111,7 +112,8 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	server := grpc.NewServer()
+	server := grpc.NewServer(grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()))
+
 	implementation := group_service.NewGroupService(groupRepo)
 	group_repo.RegisterGroupServiceServer(server, implementation)
 

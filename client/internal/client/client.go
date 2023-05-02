@@ -93,6 +93,7 @@ func (s *Client) Get(r *http.Request) ([]byte, int) {
 	tp := otel.Tracer("GetHttpClient")
 	ctx, span := tp.Start(s.ctx, "client received request from user")
 	defer span.End()
+
 	id, err := s.GetIdQuery(r.URL)
 	if err != nil {
 		return nil, http.StatusBadRequest

@@ -2,6 +2,7 @@ package student_client
 
 import (
 	"context"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"homework-5/client/pb/student_repo"
 )
@@ -19,7 +20,11 @@ type StudentClient struct {
 }
 
 func NewClient(ctx context.Context, target string) (*StudentClient, error) {
-	conn, err := grpc.DialContext(ctx, target, grpc.WithInsecure())
+	conn, err := grpc.DialContext(ctx,
+		target,
+		grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
+
 	if err != nil {
 		return nil, err
 	}
