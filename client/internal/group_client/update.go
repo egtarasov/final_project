@@ -8,7 +8,7 @@ import (
 	"homework-5/client/pb/group_repo"
 )
 
-func (s *StudentClient) Update(ctx context.Context, id int64, group *group_repo.Group) (bool, error) {
+func (s *GroupClient) Update(ctx context.Context, id int64, group *group_repo.Group) (bool, error) {
 	tp := otel.Tracer("ClientUpdate_Group")
 	ctx, span := tp.Start(ctx, "start updating group")
 	marshalled, err := json.Marshal(group)

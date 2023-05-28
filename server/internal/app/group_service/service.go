@@ -6,22 +6,22 @@ import (
 	"fmt"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"homework-5/internal/app"
-	"homework-5/internal/app/group"
-	"homework-5/internal/app/pb/group_repo"
+	"homework-5/server/internal/app"
+	"homework-5/server/internal/app/group"
+	group_repo2 "homework-5/server/internal/app/pb/group_repo"
 )
 
 type Implementation struct {
-	group_repo.UnsafeGroupServiceServer
+	group_repo2.UnsafeGroupServiceServer
 
-	repo group.GroupRepository
+	repo group.Repository
 }
 
-func NewGroupService(repo group.GroupRepository) *Implementation {
+func NewGroupService(repo group.Repository) *Implementation {
 	return &Implementation{repo: repo}
 }
 
-func (i *Implementation) CreateGroup(ctx context.Context, request *group_repo.CreateGroupRequest) (*group_repo.CreateGroupResponse, error) {
+func (i *Implementation) CreateGroup(ctx context.Context, request *group_repo2.CreateGroupRequest) (*group_repo2.CreateGroupResponse, error) {
 	app.GroupOpProcessed.Inc()
 
 	tr := otel.Tracer("CreateGroup")
@@ -38,10 +38,10 @@ func (i *Implementation) CreateGroup(ctx context.Context, request *group_repo.Cr
 		return nil, fmt.Errorf("cant create group")
 	}
 
-	return &group_repo.CreateGroupResponse{Id: id}, nil
+	return &group_repo2.CreateGroupResponse{Id: id}, nil
 }
 
-func (i *Implementation) GetGroupById(ctx context.Context, request *group_repo.GetGroupRequest) (*group_repo.GetGroupResponse, error) {
+func (i *Implementation) GetGroupById(ctx context.Context, request *group_repo2.GetGroupRequest) (*group_repo2.GetGroupResponse, error) {
 	app.GroupOpProcessed.Inc()
 
 	tr := otel.Tracer("GetGroup")
@@ -51,13 +51,13 @@ func (i *Implementation) GetGroupById(ctx context.Context, request *group_repo.G
 
 	group, err := i.repo.GetById(ctx, request.Id)
 	if err != nil {
-		return nil, fmt.Errorf("cant create group")
+		return nil, fmt.Errorf("cant get group")
 	}
 
-	return &group_repo.GetGroupResponse{Group: ParseGroupRequest(group)}, nil
+	return &group_repo2.GetGroupResponse{Group: ParseGroupRequest(group)}, nil
 }
 
-func (i *Implementation) DeleteGroupById(ctx context.Context, request *group_repo.DeleteGroupRequest) (*group_repo.DeleteGroupResponse, error) {
+func (i *Implementation) DeleteGroupById(ctx context.Context, request *group_repo2.DeleteGroupRequest) (*group_repo2.DeleteGroupResponse, error) {
 	app.GroupOpProcessed.Inc()
 
 	tr := otel.Tracer("DeleteGroup")
@@ -67,13 +67,13 @@ func (i *Implementation) DeleteGroupById(ctx context.Context, request *group_rep
 
 	ok, err := i.repo.Remove(ctx, request.Id)
 	if err != nil {
-		return nil, fmt.Errorf("cant create group")
+		return nil, fmt.Errorf("cant delete group")
 	}
 
-	return &group_repo.DeleteGroupResponse{Ok: ok}, nil
+	return &group_repo2.DeleteGroupResponse{Ok: ok}, nil
 }
 
-func (i *Implementation) UpdateGroup(ctx context.Context, request *group_repo.UpdateGroupRequest) (*group_repo.UpdateGroupResponse, error) {
+func (i *Implementation) UpdateGroup(ctx context.Context, request *group_repo2.UpdateGroupRequest) (*group_repo2.UpdateGroupResponse, error) {
 	app.GroupOpProcessed.Inc()
 
 	tr := otel.Tracer("UpdateGroup")
@@ -88,8 +88,8 @@ func (i *Implementation) UpdateGroup(ctx context.Context, request *group_repo.Up
 
 	ok, err := i.repo.UpdateById(ctx, request.Id, ParseGroup(request.Group))
 	if err != nil {
-		return nil, fmt.Errorf("cant create group")
+		return nil, fmt.Errorf("cant update group")
 	}
 
-	return &group_repo.UpdateGroupResponse{Ok: ok}, nil
+	return &group_repo2.UpdateGroupResponse{Ok: ok}, nil
 }

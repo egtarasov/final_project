@@ -1,13 +1,16 @@
-//go:generate mockgen -source ./Server.go -destination=./mocks/Server.go -package=mock_server
-package server
+package client
 
 import (
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"homework-5/server/internal/app/group"
-	"homework-5/server/internal/app/student"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"homework-5/client/internal/group_client"
+	"homework-5/client/internal/student_client"
+	"homework-5/client/pb/group_repo"
+	"homework-5/client/pb/student_repo"
 	"io"
 	"log"
 	"net/http"
@@ -15,29 +18,26 @@ import (
 	"strconv"
 )
 
-const (
-	Port = ":80"
-)
-
 var (
 	errNoId    = errors.New("no id")
 	errParseId = errors.New("cant parse id")
 )
 
-type Server struct {
-	studentRepo student.Repository
-	groupRepo   group.Repository
-	ctx         context.Context
+type Client struct {
+	ctx           context.Context
+	groupClient   group_client.Client
+	studentClient student_client.Client
 }
 
-func NewServer(ctx context.Context, studentRepo student.Repository, groupRepo group.Repository) *Server {
-	return &Server{
-		ctx:         ctx,
-		studentRepo: studentRepo,
-		groupRepo:   groupRepo}
+func NewClient(ctx context.Context, groupClient group_client.Client, studentClient student_client.Client) *Client {
+	return &Client{
+		ctx:           ctx,
+		groupClient:   groupClient,
+		studentClient: studentClient,
+	}
 }
 
-func (s *Server) GetIdQuery(r *url.URL) (int64, error) {
+func (s *Client) GetIdQuery(r *url.URL) (int64, error) {
 	idStr := r.Query().Get("id")
 
 	if idStr == "" {
@@ -53,56 +53,63 @@ func (s *Server) GetIdQuery(r *url.URL) (int64, error) {
 	return id, nil
 }
 
-func (s *Server) GetStudentFromBody(r *http.Request) (student.Student, error) {
+func (s *Client) GetStudentFromBody(r *http.Request) (student_repo.Student, error) {
 	data, err := io.ReadAll(r.Body)
 
 	if err != nil {
 		log.Printf("Error while reading body, method:[Server/Post]")
-		return student.Student{}, err
+		return student_repo.Student{}, err
 	}
 
-	var unmarshalled student.Student
+	var unmarshalled student_repo.Student
 
 	if err = json.Unmarshal(data, &unmarshalled); err != nil {
 		fmt.Printf("Error while unmarshalling body, method:[Server/Post]")
-		return student.Student{}, err
+		return student_repo.Student{}, err
 	}
 
 	return unmarshalled, nil
 }
 
-func (s *Server) GetGroupFromBody(r *http.Request) (group.Group, error) {
+func (s *Client) GetGroupFromBody(r *http.Request) (group_repo.Group, error) {
 	data, err := io.ReadAll(r.Body)
 
 	if err != nil {
 		log.Printf("Error while reading body, method:[Server/Post]")
-		return group.Group{}, err
+		return group_repo.Group{}, err
 	}
 
-	var unmarshalled group.Group
+	var unmarshalled group_repo.Group
 
 	if err = json.Unmarshal(data, &unmarshalled); err != nil {
 		fmt.Printf("Error while unmarshalling body, method:[Server/Post]")
-		return group.Group{}, err
+		return group_repo.Group{}, err
 	}
 
 	return unmarshalled, nil
 }
 
-func (s *Server) Get(r *http.Request) ([]byte, int) {
+func (s *Client) Get(r *http.Request) ([]byte, int) {
+	tp := otel.Tracer("GetHttpClient")
+	ctx, span := tp.Start(s.ctx, "client received request from user")
+	defer span.End()
+
 	id, err := s.GetIdQuery(r.URL)
 	if err != nil {
 		return nil, http.StatusBadRequest
 	}
 	table := r.URL.Query().Get("table")
 
+	span.SetAttributes(attribute.Key("id").Int64(id))
+	span.SetAttributes(attribute.Key("table").String(table))
+
 	var object interface{}
 
 	switch table {
 	case "student":
-		object, err = s.studentRepo.GetById(s.ctx, id)
+		object, err = s.studentClient.GetById(ctx, id)
 	case "group":
-		object, err = s.groupRepo.GetById(s.ctx, id)
+		object, err = s.groupClient.GetById(ctx, id)
 	case "":
 		return nil, http.StatusBadRequest
 	}
@@ -119,9 +126,14 @@ func (s *Server) Get(r *http.Request) ([]byte, int) {
 	return marshalled, http.StatusOK
 }
 
-func (s *Server) Post(r *http.Request) ([]byte, int) {
+func (s *Client) Post(r *http.Request) ([]byte, int) {
+	tp := otel.Tracer("GetHttpClient")
+	ctx, span := tp.Start(s.ctx, "client received request from user")
+	defer span.End()
+
 	table := r.URL.Query().Get("table")
 
+	span.SetAttributes(attribute.Key("table").String(table))
 	var id int64
 	var err error
 
@@ -131,13 +143,20 @@ func (s *Server) Post(r *http.Request) ([]byte, int) {
 		if err != nil {
 			return nil, http.StatusBadRequest
 		}
-		id, err = s.studentRepo.Add(s.ctx, &student)
+		// Add info about student to Span
+		span.SetAttributes(attribute.Key("student").String(student.String()))
+
+		id, err = s.studentClient.Create(ctx, &student)
 	case "group":
 		group, err := s.GetGroupFromBody(r)
 		if err != nil {
 			return nil, http.StatusBadRequest
 		}
-		id, err = s.groupRepo.Add(s.ctx, &group)
+
+		// Add info about group to Span
+		span.SetAttributes(attribute.Key("group").String(group.String()))
+
+		id, err = s.groupClient.Create(ctx, &group)
 	default:
 		return nil, http.StatusBadRequest
 	}
@@ -149,13 +168,20 @@ func (s *Server) Post(r *http.Request) ([]byte, int) {
 	return []byte(fmt.Sprintf("%v with id[%v] has been added to database", table, id)), http.StatusOK
 }
 
-func (s *Server) Put(r *http.Request) ([]byte, int) {
+func (s *Client) Put(r *http.Request) ([]byte, int) {
+	tp := otel.Tracer("GetHttpClient")
+	ctx, span := tp.Start(s.ctx, "client received request from user")
+	defer span.End()
+
 	id, err := s.GetIdQuery(r.URL)
 	if err != nil {
 		return nil, http.StatusBadRequest
 	}
 
 	table := r.URL.Query().Get("table")
+	// Add info about 'table' and 'id' to Span
+	span.SetAttributes(attribute.Key("table").String(table))
+	span.SetAttributes(attribute.Key("id").Int64(id))
 
 	var ok bool
 
@@ -165,13 +191,19 @@ func (s *Server) Put(r *http.Request) ([]byte, int) {
 		if err != nil {
 			return nil, http.StatusBadRequest
 		}
-		ok, err = s.studentRepo.UpdateById(s.ctx, id, &student)
+		// Add info about student to Span
+		span.SetAttributes(attribute.Key("student").String(student.String()))
+
+		ok, err = s.studentClient.Update(ctx, id, &student)
 	case "group":
 		group, err := s.GetGroupFromBody(r)
 		if err != nil {
 			return nil, http.StatusBadRequest
 		}
-		ok, err = s.groupRepo.UpdateById(s.ctx, id, &group)
+		// Add info about group to Span
+		span.SetAttributes(attribute.Key("group").String(group.String()))
+
+		ok, err = s.groupClient.Update(ctx, id, &group)
 	default:
 		return nil, http.StatusBadRequest
 	}
@@ -187,19 +219,28 @@ func (s *Server) Put(r *http.Request) ([]byte, int) {
 	return []byte("Object has been successfully updated"), http.StatusOK
 }
 
-func (s *Server) Delete(r *http.Request) ([]byte, int) {
+func (s *Client) Delete(r *http.Request) ([]byte, int) {
+	tp := otel.Tracer("GetHttpClient")
+	ctx, span := tp.Start(s.ctx, "client received request from user")
+	defer span.End()
+
 	id, err := s.GetIdQuery(r.URL)
 	if err != nil {
 		return nil, http.StatusBadRequest
 	}
 	table := r.URL.Query().Get("table")
+
+	// Add info about 'table' and 'id' to Span
+	span.SetAttributes(attribute.Key("table").String(table))
+	span.SetAttributes(attribute.Key("id").Int64(id))
+
 	var ok bool
 
 	switch table {
 	case "student":
-		ok, err = s.studentRepo.Remove(s.ctx, id)
+		ok, err = s.studentClient.Delete(ctx, id)
 	case "group":
-		ok, err = s.groupRepo.Remove(s.ctx, id)
+		ok, err = s.groupClient.Delete(ctx, id)
 	default:
 		return nil, http.StatusBadRequest
 	}
@@ -215,7 +256,7 @@ func (s *Server) Delete(r *http.Request) ([]byte, int) {
 	return []byte("Object has been successfully deleted"), http.StatusOK
 }
 
-func (s *Server) Handle(w http.ResponseWriter, r *http.Request) {
+func (s *Client) Handle(w http.ResponseWriter, r *http.Request) {
 	var (
 		buf  []byte
 		code int

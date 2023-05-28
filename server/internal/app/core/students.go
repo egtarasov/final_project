@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"homework-5/internal/app/student"
+	"homework-5/server/internal/app/student"
 	"strconv"
 	"time"
 )
@@ -17,11 +17,11 @@ const (
 )
 
 type studentCommand struct {
-	repo     StudentRepository
+	repo     student.Repository
 	response string
 }
 
-func NewStudentCommand(repo StudentRepository) *studentCommand {
+func NewStudentCommand(repo student.Repository) *studentCommand {
 	return &studentCommand{
 		repo: repo,
 	}
@@ -71,7 +71,7 @@ func (s *studentCommand) updateCommandStudent(ctx context.Context, params []stri
 		return "", InvalidInput
 	}
 	student.UpdatedAt.Valid = true
-	ok, err := s.repo.UpdateById(ctx, uint64(student.Id), student)
+	ok, err := s.repo.UpdateById(ctx, student.Id, student)
 	if err != nil {
 		return "", ProcessingError
 	}

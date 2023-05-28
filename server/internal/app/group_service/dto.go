@@ -2,8 +2,8 @@ package group_service
 
 import (
 	"database/sql"
-	"homework-5/internal/app/group"
-	"homework-5/internal/app/pb/group_repo"
+	"homework-5/server/internal/app/group"
+	"homework-5/server/internal/app/pb/group_repo"
 )
 
 func ParseGroup(gr *group_repo.Group) *group.Group {

@@ -7,7 +7,7 @@ import (
 	"homework-5/client/pb/group_repo"
 )
 
-func (s *StudentClient) GetById(ctx context.Context, id int64) (*group_repo.Group, error) {
+func (s *GroupClient) GetById(ctx context.Context, id int64) (*group_repo.Group, error) {
 	tp := otel.Tracer("ClientGet_Group")
 	ctx, span := tp.Start(ctx, "start retrieving group")
 

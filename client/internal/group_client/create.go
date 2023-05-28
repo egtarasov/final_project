@@ -8,7 +8,7 @@ import (
 	"homework-5/client/pb/group_repo"
 )
 
-func (s *StudentClient) Create(ctx context.Context, group *group_repo.Group) (int64, error) {
+func (s *GroupClient) Create(ctx context.Context, group *group_repo.Group) (int64, error) {
 	tp := otel.Tracer("ClientCreate_Group")
 	ctx, span := tp.Start(ctx, "start creating group")
 	marshalled, err := json.Marshal(group)

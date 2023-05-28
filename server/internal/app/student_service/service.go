@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"homework-5/internal/app"
-	"homework-5/internal/app/pb/student_repo"
-	"homework-5/internal/app/student"
+	"homework-5/server/internal/app"
+	student_repo2 "homework-5/server/internal/app/pb/student_repo"
+	"homework-5/server/internal/app/student"
 )
 
 type Implementation struct {
-	student_repo.UnsafeStudentServiceServer
+	student_repo2.UnsafeStudentServiceServer
 	repo student.Repository
 }
 
@@ -20,11 +20,11 @@ func NewImplementation(repo student.Repository) *Implementation {
 	return &Implementation{repo: repo}
 }
 
-func (i *Implementation) CreateStudent(ctx context.Context, request *student_repo.CreateStudentRequest) (*student_repo.CreateStudentResponse, error) {
+func (i *Implementation) CreateStudent(ctx context.Context, request *student_repo2.CreateStudentRequest) (*student_repo2.CreateStudentResponse, error) {
 	app.StudentOpProcessed.Inc()
 
 	tr := otel.Tracer("CreateStudent")
-	ctx, span := tr.Start(ctx, "received request")
+	ctx, span := tr.Start(ctx, "start creating")
 	marshalled, err := json.Marshal(request.Student)
 	if err != nil {
 		return nil, err
@@ -36,14 +36,14 @@ func (i *Implementation) CreateStudent(ctx context.Context, request *student_rep
 	if err != nil {
 		return nil, fmt.Errorf("cant create student")
 	}
-	return &student_repo.CreateStudentResponse{Id: id}, nil
+	return &student_repo2.CreateStudentResponse{Id: id}, nil
 }
 
-func (i *Implementation) GetStudentById(ctx context.Context, request *student_repo.GetStudentRequest) (*student_repo.GetStudentResponse, error) {
+func (i *Implementation) GetStudentById(ctx context.Context, request *student_repo2.GetStudentRequest) (*student_repo2.GetStudentResponse, error) {
 	app.StudentOpProcessed.Inc()
 
 	tr := otel.Tracer("GetStudent")
-	ctx, span := tr.Start(ctx, "received request")
+	ctx, span := tr.Start(ctx, "start retrieving")
 	span.SetAttributes(attribute.Key("params_id").Int64(request.Id))
 	defer span.End()
 
@@ -51,14 +51,14 @@ func (i *Implementation) GetStudentById(ctx context.Context, request *student_re
 	if err != nil {
 		return nil, fmt.Errorf("cant get student")
 	}
-	return &student_repo.GetStudentResponse{Student: ParseStudentRequest(st)}, nil
+	return &student_repo2.GetStudentResponse{Student: ParseStudentRequest(st)}, nil
 }
 
-func (i *Implementation) DeleteStudentById(ctx context.Context, request *student_repo.DeleteStudentRequest) (*student_repo.DeleteStudentResponse, error) {
+func (i *Implementation) DeleteStudentById(ctx context.Context, request *student_repo2.DeleteStudentRequest) (*student_repo2.DeleteStudentResponse, error) {
 	app.StudentOpProcessed.Inc()
 
 	tr := otel.Tracer("DeleteStudent")
-	ctx, span := tr.Start(ctx, "received request")
+	ctx, span := tr.Start(ctx, "start deleting")
 	span.SetAttributes(attribute.Key("params_id").Int64(request.Id))
 	defer span.End()
 
@@ -66,14 +66,14 @@ func (i *Implementation) DeleteStudentById(ctx context.Context, request *student
 	if err != nil {
 		return nil, fmt.Errorf("cant remove student")
 	}
-	return &student_repo.DeleteStudentResponse{Ok: ok}, nil
+	return &student_repo2.DeleteStudentResponse{Ok: ok}, nil
 }
 
-func (i *Implementation) UpdateStudent(ctx context.Context, request *student_repo.UpdateStudentRequest) (*student_repo.UpdateStudentResponse, error) {
+func (i *Implementation) UpdateStudent(ctx context.Context, request *student_repo2.UpdateStudentRequest) (*student_repo2.UpdateStudentResponse, error) {
 	app.StudentOpProcessed.Inc()
 
 	tr := otel.Tracer("UpdateStudent")
-	ctx, span := tr.Start(ctx, "received request")
+	ctx, span := tr.Start(ctx, "start updating")
 	marshalled, err := json.Marshal(request.Student)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (i *Implementation) UpdateStudent(ctx context.Context, request *student_rep
 
 	ok, err := i.repo.UpdateById(ctx, request.Id, ParseStudent(request.Student))
 	if err != nil {
-		return nil, fmt.Errorf("cant remove student")
+		return nil, fmt.Errorf("cant update student")
 	}
-	return &student_repo.UpdateStudentResponse{Ok: ok}, nil
+	return &student_repo2.UpdateStudentResponse{Ok: ok}, nil
 }

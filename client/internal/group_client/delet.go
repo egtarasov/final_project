@@ -7,7 +7,7 @@ import (
 	"homework-5/client/pb/group_repo"
 )
 
-func (s *StudentClient) Delete(ctx context.Context, id int64) (bool, error) {
+func (s *GroupClient) Delete(ctx context.Context, id int64) (bool, error) {
 	tp := otel.Tracer("ClientDelete_Group")
 	ctx, span := tp.Start(ctx, "start deleting group")
 	span.SetAttributes(

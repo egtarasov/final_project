@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"homework-5/internal/app/group"
+	"homework-5/server/internal/app/group"
 	"strconv"
 )
 
@@ -16,11 +16,11 @@ const (
 )
 
 type groupCommand struct {
-	groupRepo GroupRepository
+	groupRepo group.GroupsRepository
 	response  string
 }
 
-func NewGroupCommand(groupRepo GroupRepository) *groupCommand {
+func NewGroupCommand(groupRepo group.GroupsRepository) *groupCommand {
 	return &groupCommand{
 		groupRepo: groupRepo,
 	}
@@ -69,7 +69,7 @@ func (g *groupCommand) updateCommandGroup(ctx context.Context, params []string) 
 	if err != nil {
 		return "", InvalidInput
 	}
-	ok, err := g.groupRepo.UpdateById(ctx, uint64(group.Id), group)
+	ok, err := g.groupRepo.UpdateById(ctx, group.Id, group)
 	if err != nil {
 		return "", ProcessingError
 	}

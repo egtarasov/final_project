@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package group_repo;
+option go_package = "pb2/group_repo";
+
+
+service GroupService {
+  // Create new student
+  rpc CreateGroup(CreateGroupRequest) returns (CreateGroupResponse){}
+  // Get a student by id
+  rpc GetGroupById(GetGroupRequest) returns (GetGroupResponse){}
+  // Delete student by id
+  rpc DeleteGroupById(DeleteGroupRequest) returns (DeleteGroupResponse){}
+  // Update student by id
+  rpc UpdateGroup(UpdateGroupRequest) returns (UpdateGroupResponse){}
+}
+
+message Group{
+  int64 id = 1;
+  string name = 2;
+  int32 year = 3;
+}
+
+
+
+message GetGroupRequest{
+  int64 id = 1;
+}
+
+message GetGroupResponse{
+  Group group = 1;
+}
+
+message CreateGroupRequest{
+  Group group = 1;
+}
+
+message CreateGroupResponse{
+  int64 id = 1;
+}
+
+message DeleteGroupRequest{
+  int64 id = 1;
+}
+
+message DeleteGroupResponse{
+  bool ok = 1;
+}
+
+message UpdateGroupRequest{
+  Group group = 1;
+  int64 id = 2;
+}
+
+message UpdateGroupResponse{
+  bool ok = 1;
+}

@@ -4,27 +4,13 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"homework-5/internal/app/database"
-	"homework-5/internal/app/group"
-	"homework-5/internal/app/student"
+	"homework-5/server/internal/app/database"
+	group2 "homework-5/server/internal/app/group"
+	student2 "homework-5/server/internal/app/student"
 	"log"
 	"os"
 	"strings"
 )
-
-type GroupRepository interface {
-	Add(ctx context.Context, group *group.Group) (uint64, error)                 //create
-	GetById(ctx context.Context, id uint64) (*group.Group, error)                //read
-	UpdateById(ctx context.Context, id uint64, group *group.Group) (bool, error) // update
-	Remove(ctx context.Context, id uint64) (bool, error)                         //delete
-}
-
-type StudentRepository interface {
-	Add(ctx context.Context, student *student.Student) (int64, error)                 //create
-	GetById(ctx context.Context, id int64) (*student.Student, error)                  //read
-	UpdateById(ctx context.Context, id int64, student *student.Student) (bool, error) // update
-	Remove(ctx context.Context, id int64) (bool, error)                               //delete
-}
 
 func Run() {
 	ctx := context.Background()
@@ -34,8 +20,8 @@ func Run() {
 		log.Fatalln(err)
 	}
 
-	studentRepo := student.NewStudentsRepository(client)
-	groupRepo := group.NewGroupsRepository(client)
+	studentRepo := student2.NewStudentsRepository(client)
+	groupRepo := group2.NewGroupsRepository(client)
 
 	cons := NewConsole(ctx, studentRepo, groupRepo)
 	reader := bufio.NewReader(os.Stdin)

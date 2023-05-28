@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"homework-5/server/internal/app/group"
+	"homework-5/server/internal/app/student"
 	"strconv"
 	"strings"
 )
@@ -33,11 +35,11 @@ var (
 
 type Console struct {
 	ctx         context.Context
-	studentRepo StudentRepository
-	groupRepo   GroupRepository
+	studentRepo student.Repository
+	groupRepo   group.Repository
 }
 
-func NewConsole(ctx context.Context, studentRepo StudentRepository, groupRepo GroupRepository) *Console {
+func NewConsole(ctx context.Context, studentRepo student.Repository, groupRepo group.Repository) *Console {
 	return &Console{
 		ctx:         ctx,
 		studentRepo: studentRepo,
@@ -72,6 +74,6 @@ func (c *Console) Action(command string) (string, error) {
 	return consoleCommand.Process(c.ctx, params[1:])
 }
 
-func getId(params []string) (uint64, error) {
-	return strconv.ParseUint(params[1], 10, 64)
+func getId(params []string) (int64, error) {
+	return strconv.ParseInt(params[1], 10, 64)
 }

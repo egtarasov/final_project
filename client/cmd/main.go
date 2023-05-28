@@ -8,20 +8,22 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
+	"homework-5/client/internal/client"
 	group_client "homework-5/client/internal/group_client"
 	"homework-5/client/internal/student_client"
 	"log"
+	"net/http"
 	"time"
 )
 
 const (
 	serverStudentUrl = ":8000"
-	serverGroupUrl   = ":80001"
+	serverGroupUrl   = ":8001"
 )
 
 const (
 	environment = "Development"
-	name        = "Client_repo"
+	name        = "client_repo"
 )
 
 func Tracer(target string) (*tracesdk.TracerProvider, error) {
@@ -73,31 +75,17 @@ func main() {
 	}
 	defer studentClient.Close()
 
-	groupClient, err := group_client.NewClient(ctx, serverStudentUrl)
+	groupClient, err := group_client.NewClient(ctx, serverGroupUrl)
 	if err != nil {
 		log.Fatal("cant connect to student service")
 	}
 	defer groupClient.Close()
 
-	//student, err := studentClient.GetById(ctx, 2)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//fmt.Println(student)
-	//
-	//student.FirstName = "Bob"
-	//student.SecondName = "Bobuk"
-	//id, err := studentClient.Create(ctx, student)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//fmt.Println(id)
-	//
-	//ok, err := studentClient.Delete(ctx, 1)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//fmt.Println(ok)
-	//
-	//time.Sleep(time.Minute * 10)
+	cl := client.NewClient(ctx, groupClient, studentClient)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/client", cl.Handle)
+	if err := http.ListenAndServe(":1200", mux); err != nil {
+		log.Fatal(err)
+	}
 }

@@ -2,8 +2,8 @@ package student_service
 
 import (
 	"database/sql"
-	"homework-5/internal/app/pb/student_repo"
-	"homework-5/internal/app/student"
+	"homework-5/server/internal/app/pb/student_repo"
+	"homework-5/server/internal/app/student"
 )
 
 func ParseStudent(st *student_repo.Student) *student.Student {

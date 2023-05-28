@@ -2,9 +2,22 @@ ifeq ($(POSTGRES_SETUP_TEST),)
 	POSTGRES_SETUP_TEST := user=postgres password=postgres dbname=postgres host=localhost port=5432 sslmode=disable
 endif
 
-INTERNAL_PKG_PATH=$(CURDIR)/internal/app
-MIGRATION_FOLDER=$(INTERNAL_PKG_PATH)/database/migrations
+INTERNAL_APP_PATH=$(CURDIR)/internal/app
+MIGRATION_FOLDER=$(INTERNAL_APP_PATH)/database/migrations
 UNIT_TEST_SERVER=$(CURDIR)/internal/app/server
+
+.PHONY: set-up
+set-up:
+	docker-compose build
+	docker-compose up -d
+	goose -dir "$(MIGRATION_FOLDER)" postgres "$(POSTGRES_SETUP_TEST)" up
+
+
+
+.PHONY: create-proto
+create-proto:
+	protoc --proto_path=./proto --go_out=./internal/app/pb --go-grpc_out=./internal/app/pb proto/*.proto
+
 .PHONY: migration-create
 migration-create:
 	goose -dir "$(MIGRATION_FOLDER)" create "$(name)" sql

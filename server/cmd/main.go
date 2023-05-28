@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"github.com/joho/godotenv"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
@@ -10,14 +12,14 @@ import (
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 	"google.golang.org/grpc"
-	"homework-5/internal/app"
-	"homework-5/internal/app/database"
-	"homework-5/internal/app/group"
-	"homework-5/internal/app/group_service"
-	"homework-5/internal/app/pb/group_repo"
-	"homework-5/internal/app/pb/student_repo"
-	"homework-5/internal/app/student"
-	"homework-5/internal/app/student_service"
+	"homework-5/server/internal/app"
+	"homework-5/server/internal/app/database"
+	"homework-5/server/internal/app/group"
+	"homework-5/server/internal/app/group_service"
+	"homework-5/server/internal/app/pb/group_repo"
+	"homework-5/server/internal/app/pb/student_repo"
+	"homework-5/server/internal/app/student"
+	"homework-5/server/internal/app/student_service"
 	"log"
 	"net"
 	"net/http"
@@ -53,6 +55,11 @@ const (
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -105,7 +112,8 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	server := grpc.NewServer()
+	server := grpc.NewServer(grpc.UnaryInterceptor(otelgrpc.UnaryServerInterceptor()))
+
 	implementation := group_service.NewGroupService(groupRepo)
 	group_repo.RegisterGroupServiceServer(server, implementation)
 

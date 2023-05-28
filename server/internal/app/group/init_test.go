@@ -3,7 +3,7 @@ package group
 import (
 	"context"
 	"fmt"
-	"homework-5/internal/app/database"
+	database2 "homework-5/server/internal/app/database"
 	"strings"
 	"sync"
 	"testing"
@@ -12,13 +12,13 @@ import (
 type TestDb struct {
 	sync.Mutex
 	ctx  context.Context
-	db   *database.Database
+	db   *database2.Database
 	repo *GroupsRepository
 }
 
 func NewTestDb() *TestDb {
 	ctx := context.Background()
-	db, err := database.NewDb(ctx)
+	db, err := database2.NewDb(ctx)
 	if err != nil {
 		return nil
 	}

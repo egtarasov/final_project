@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"github.com/golang/mock/gomock"
-	mock "homework-5/internal/app/server/mocks"
+	mock "homework-5/server/internal/app/server/mocks"
 	"testing"
 )
 
